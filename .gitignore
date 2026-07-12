@@ -1,0 +1,17 @@
+# Go build and test artifacts
+/bin/
+/dist/
+*.exe
+*.test
+*.out
+
+# Local editor and MCP state
+.vscode/
+.codegraph/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local tooling state
+.atl/
