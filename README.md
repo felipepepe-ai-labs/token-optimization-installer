@@ -45,8 +45,13 @@ toolchain and all TUI dependencies in `go.mod` and `go.sum`.
 ```bash
 go run .
 go run . --dry-run
+go run . --workspace /path/to/project
 go build -o token-optimizer-installer .
 ```
+
+`--dry-run` prints the actions the installer would take without changing the
+system. `--workspace` sets the directory where `.vscode/mcp.json` is
+read and written; it defaults to the current directory.
 
 Cross-compile release binaries:
 
