@@ -8,7 +8,10 @@ import (
 	"runtime"
 )
 
-const engramModule = "github.com/Gentleman-Programming/engram/cmd/engram@latest"
+const (
+	engramModule  = "github.com/Gentleman-Programming/engram/cmd/engram"
+	engramVersion = "v1.19.0"
+)
 
 func InstallEngram(runner Runner) (string, error) {
 	goCommand, err := exec.LookPath("go")
@@ -32,7 +35,7 @@ func InstallEngram(runner Runner) (string, error) {
 			return "", fmt.Errorf("create Engram binary directory: %w", err)
 		}
 	}
-	if err := runner.RunWithEnv(map[string]string{"GOBIN": binDir}, goCommand, "install", engramModule); err != nil {
+	if err := runner.RunWithEnv(map[string]string{"GOBIN": binDir}, goCommand, "install", engramModule+"@"+engramVersion); err != nil {
 		return "", err
 	}
 	return filepath.Join(binDir, name), nil
