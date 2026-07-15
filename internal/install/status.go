@@ -40,7 +40,7 @@ func DetectUpdates() map[string]UpdateStatus {
 			return checkRemoteTool(privatePythonTool("headroom"), "headroom", "--version", "https://pypi.org/pypi/headroom-ai/json", true)
 		},
 		"engram": func() UpdateStatus {
-			return checkRemoteTool(privateBinary("engram"), "engram", "version", "https://api.github.com/repos/Gentleman-Programming/engram/releases/latest", false)
+			return checkPinnedTool(privateBinary("engram"), "engram", "version", engramVersion)
 		},
 		"skills-hub": func() UpdateStatus {
 			return checkPinnedCheckout(filepath.Join(userConfigDir(), "skills-hub"), skillsHubVersion)
@@ -122,6 +122,35 @@ func fetchLatestVersion(endpoint string, pypi bool) (string, error) {
 		return strings.TrimPrefix(payload.Info.Version, "v"), nil
 	}
 	return strings.TrimPrefix(payload.TagName, "v"), nil
+}
+
+func checkPinnedTool(preferred, fallback, versionArg, target string) UpdateStatus {
+	command := preferred
+	if command == "" || !fileExists(command) {
+		var err error
+		command, err = exec.LookPath(fallback)
+		if err != nil {
+			return UpdateStatus{}
+		}
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+	defer cancel()
+	output, err := exec.CommandContext(ctx, command, versionArg).CombinedOutput()
+	if err != nil {
+		return UpdateStatus{Installed: true}
+	}
+	current := extractVersion(string(output))
+	if current == "" {
+		return UpdateStatus{Installed: true}
+	}
+	latest := strings.TrimPrefix(target, "v")
+	return UpdateStatus{
+		Installed:       true,
+		Checked:         true,
+		Latest:          latest,
+		Current:         current,
+		UpdateAvailable: compareVersions(current, latest) < 0,
+	}
 }
 
 func checkPinnedCheckout(directory, target string) UpdateStatus {
